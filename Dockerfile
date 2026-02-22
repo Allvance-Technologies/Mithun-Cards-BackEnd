@@ -1,43 +1,54 @@
-# Use the official PHP 8.2 image with Apache
 FROM php:8.2-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libzip-dev \
     zip \
-    unzip \
-    default-mysql-client
+    default-mysql-client \
+    && rm -rf /var/lib/apt/lists/*
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install PHP extensions
+RUN docker-php-ext-install \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip
 
-# Install PHP extensions required by Laravel
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
-
-# Enable Apache mod_rewrite for Laravel routing
+# Enable Apache rewrite
 RUN a2enmod rewrite
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy the application code
-COPY . /var/www/html
+# Copy app files
+COPY . .
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Laravel dependencies
+# Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Set permissions for Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Set permissions
+RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Update Apache document root to point to Laravel's public folder
+# Set Apache document root to public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf
+RUN sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf
 
-# Expose port 80
-EXPOSE 80
+# ✅ IMPORTANT FIX FOR RENDER PORT
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+# Make Apache listen to Render's PORT
+CMD sh -c "sed -i 's/80/'$PORT'/g' /etc/apache2/ports.conf && \
+           sed -i 's/:80/:'$PORT'/g' /etc/apache2/sites-available/000-default.conf && \
+           apache2-foreground"
