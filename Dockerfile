@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libpq-dev
     zip \
     default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
