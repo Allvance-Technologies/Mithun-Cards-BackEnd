@@ -11,6 +11,7 @@ class InventoryItem extends Model
 
     protected $fillable = [
         'item_name',
+        'category',
         'stock_quantity',
         'low_stock_threshold',
         'cost_per_unit',

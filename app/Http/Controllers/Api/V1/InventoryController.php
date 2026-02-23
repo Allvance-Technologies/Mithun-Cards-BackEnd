@@ -27,6 +27,7 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'item_name' => 'required|string|unique:inventory_items',
+            'category' => 'required|string',
             'stock_quantity' => 'required|integer|min:0',
             'low_stock_threshold' => 'required|integer|min:0',
             'cost_per_unit' => 'required|numeric|min:0',
@@ -52,6 +53,7 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'item_name' => 'required|string',
+            'category' => 'required|string',
             'stock_quantity' => 'required|integer|min:0',
             'low_stock_threshold' => 'required|integer|min:0',
             'cost_per_unit' => 'required|numeric|min:0',

@@ -13,6 +13,7 @@ class InventoryResource extends JsonResource
         return [
             'id' => $this->id,
             'item_name' => $this->item_name,
+            'category' => $this->category,
             'stock_quantity' => $this->stock_quantity,
             'low_stock_threshold' => $this->low_stock_threshold,
             'cost_per_unit' => (float) $this->cost_per_unit,
