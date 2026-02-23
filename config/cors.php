@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', '*'), 'https://mithun-cards-frontend.onrender.com'],
+    'allowed_origins' => [env('FRONTEND_URL', '*')],
 
     'allowed_origins_patterns' => [],
 

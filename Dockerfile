@@ -53,11 +53,15 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf
 RUN sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf
 
+# ✅ Allow .htaccess overrides
+RUN sed -i '/<Directory ${APACHE_DOCUMENT_ROOT}>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf || \
+    sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
 # ✅ IMPORTANT FIX FOR RENDER PORT
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Make Apache listen to Render's PORT
 CMD sh -c "sed -i 's/80/'$PORT'/g' /etc/apache2/ports.conf && \
            sed -i 's/:80/:'$PORT'/g' /etc/apache2/sites-available/000-default.conf && \
-           php artisan migrate --force && \
+           php artisan migrate --force --seed && \
            apache2-foreground"
