@@ -40,12 +40,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
 RUN php artisan config:clear
-RUN php artisan cache:clear
-RUN php artisan route:clear
+# RUN php artisan cache:clear
+# RUN php artisan route:clear
 
 # Set permissions
-RUN chown -R www-data:www-data storage bootstrap/cache
-
+RUN mkdir -p storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
 # Set Apache document root to public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf
