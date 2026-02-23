@@ -12,11 +12,17 @@ class InventoryItem extends Model
     protected $fillable = [
         'item_name',
         'category',
+        'subcategory_id',
         'stock_quantity',
         'low_stock_threshold',
         'cost_per_unit',
         'image',
     ];
+
+    public function subcategory()
+    {
+        return $this->belongsTo(Subcategory::class);
+    }
 
     public function isLowStock(): bool
     {
