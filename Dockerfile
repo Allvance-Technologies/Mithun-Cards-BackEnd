@@ -53,9 +53,12 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf
 RUN sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf
 
-# ✅ Allow .htaccess overrides
-RUN sed -i '/<Directory ${APACHE_DOCUMENT_ROOT}>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf || \
-    sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+# ✅ Force AllowOverride All for the entire web root to ensure Laravel routing works
+RUN echo "<Directory /var/www/html/public>\n\
+    Options Indexes FollowSymLinks\n\
+    AllowOverride All\n\
+    Require all granted\n\
+</Directory>" >> /etc/apache2/apache2.conf
 
 # ✅ IMPORTANT FIX FOR RENDER PORT
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
