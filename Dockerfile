@@ -39,9 +39,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-RUN php artisan config:clear
-# RUN php artisan cache:clear
-# RUN php artisan route:clear
+# Run artisan commands with dummy environment to avoid database connection errors during build
+RUN DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan config:clear && \
+    DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan route:clear && \
+    DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan view:clear
 
 # Set permissions
 RUN mkdir -p storage bootstrap/cache && \
@@ -58,4 +59,5 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 # Make Apache listen to Render's PORT
 CMD sh -c "sed -i 's/80/'$PORT'/g' /etc/apache2/ports.conf && \
            sed -i 's/:80/:'$PORT'/g' /etc/apache2/sites-available/000-default.conf && \
+           php artisan migrate --force && \
            apache2-foreground"
