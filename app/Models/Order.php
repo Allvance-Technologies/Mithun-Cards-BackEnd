@@ -15,9 +15,11 @@ class Order extends Model
         'status',
         'subtotal',
         'tax',
+        'discount',
         'total',
         'advance_paid',
         'balance_due',
+        'payment_method',
     ];
 
     public function customer()

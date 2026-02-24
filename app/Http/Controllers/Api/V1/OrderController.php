@@ -27,7 +27,13 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
+            'subtotal' => 'required|numeric',
+            'tax' => 'required|numeric',
+            'total' => 'required|numeric',
+            'discount' => 'sometimes|numeric',
             'advance_paid' => 'required|numeric|min:0',
+            'payment_method' => 'sometimes|string|nullable',
+            'status' => 'sometimes|string',
             'items' => 'required|array|min:1',
             'items.*.product_name' => 'required|string',
             'items.*.quantity' => 'required|integer|min:1',
@@ -56,8 +62,13 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
+            'subtotal' => 'sometimes|numeric',
+            'tax' => 'sometimes|numeric',
+            'total' => 'sometimes|numeric',
+            'discount' => 'sometimes|numeric',
             'advance_paid' => 'required|numeric|min:0',
-            'status' => 'sometimes|string|in:pending,design,printing,ready,delivered',
+            'payment_method' => 'sometimes|string|nullable',
+            'status' => 'sometimes|string|in:pending,design,printing,ready,delivered,paid',
             'items' => 'required|array|min:1',
             'items.*.product_name' => 'required|string',
             'items.*.quantity' => 'required|integer|min:1',
